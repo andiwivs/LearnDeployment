@@ -8,10 +8,15 @@ function Get-SolutionProjects
 	return $solution.ProjectsInOrder |
 		Where-Object {$_.ProjectType -eq 'KnownToBeMSBuildFormat'} |
 		ForEach-Object {
-		@{
-			Path = $_.AbsolutePath;
-			Name = $_.ProjectName;
-			Directory = "$(Split-Path -Path $_.AbsolutePath -Resolve)"
+
+			# in a world of hacky and shoddy code, even this manages to stand out...
+			$isWebProject = (Select-String -Pattern "<UseIISExpress>.+</UseIISExpress>" -Path $_.AbsolutePath) -ne $null
+
+			@{
+				Path = $_.AbsolutePath;
+				Name = $_.ProjectName;
+				Directory = "$(Split-Path -Path $_.AbsolutePath -Resolve)";
+				IsWebProject = $isWebProject;
+			}
 		}
-	}
 }

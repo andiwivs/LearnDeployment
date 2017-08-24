@@ -1,5 +1,6 @@
 param (
-	$outputDirectory = (property outputDirectory "artifacts")
+	$outputDirectory = (property outputDirectory "artifacts"),
+	$configuration = (property configuration "Release")
 )
 
 $absoluteOutputDirectory = "$((Get-Location).Path)\$outputDirectory"
@@ -26,10 +27,23 @@ Task Clean {
 		}
 }
 
-Task init {
-	Write-Host "Hello, world!"
-}
+Task Compile {
+	use "14.0" MSBuild
+	$projects |
+		ForEach-Object {
 
-Task init2 {
-	Write-Host "Hello, again"
+			if ($_.IsWebProject)
+			{
+				$webOutputDir = "$absoluteOutputDirectory\$($_.Name)"
+				$outputDir = "$absoluteOutputDirectory\$($_.Name)\bin"
+
+				# TODO: work out why this is failing...
+				exec { MSBuild $($_.Path) /p:Configuration=$configuration /p:OutDir=$outputDir /p:WebProjectOutputDir=$webOutputDir `
+					/nologo /p:DebugType=None /p:Platform=AnyCpu /verbosity:quiet }
+			}
+			else
+			{
+				# TODO: implement regular assembly builds
+			}
+		}
 }
