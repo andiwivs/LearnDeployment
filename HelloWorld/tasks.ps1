@@ -53,3 +53,31 @@ Task Compile {
 			}
 		}
 }
+
+Task Test {
+	$projects |
+		ForEach-Object {
+
+			<##################################################################################
+			 # for XUnit
+			 ##################################################################################
+
+			$xunitPath = Get-PackagePath "xunit.runner.console" $($_.Directory)
+
+			if ($xunitPath -eq $null) {
+				return
+			}
+						
+			Write-Host "Running tests for $($_.Name)"
+
+			$xunitRunner = "$xunitPath\tools\xunit.console.exe"
+
+			exec { & $xunitRunner $absoluteOutputDirectory\$($_.Name)\$($_.Name).dll `
+				-xml "$absoluteOutputDirectory\xunit_$($_.Name).xml" `
+				-html "$absoluteOutputDirectory\xunit_$($_.Name).html" `
+				-nologo }
+			##################################################################################>
+		}
+	
+	Write-Host "SKIPPED: run unit tests as need equivalent invoke for MSTest"
+}

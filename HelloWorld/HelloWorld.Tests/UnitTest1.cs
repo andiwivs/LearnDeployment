@@ -9,6 +9,8 @@ namespace HelloWorld.Tests
         [TestMethod]
         public void TestMethod1()
         {
+            // simulate a successful test
+            Assert.IsTrue(true);
         }
     }
 }
