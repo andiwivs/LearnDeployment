@@ -28,22 +28,28 @@ Task Clean {
 }
 
 Task Compile {
-	use "14.0" MSBuild
+	use "15.0" MSBuild
 	$projects |
 		ForEach-Object {
 
 			if ($_.IsWebProject)
 			{
 				$webOutputDir = "$absoluteOutputDirectory\$($_.Name)"
-				$outputDir = "$absoluteOutputDirectory\$($_.Name)\bin"
+				$binOutputDir = "$absoluteOutputDirectory\$($_.Name)\bin"
 
-				# TODO: work out why this is failing...
-				exec { MSBuild $($_.Path) /p:Configuration=$configuration /p:OutDir=$outputDir /p:WebProjectOutputDir=$webOutputDir `
+				Write-Host "Compiling $($_.Name) to $webOutputDir"
+
+				exec { MSBuild $($_.Path) /p:Configuration=$configuration /p:OutDir=$binOutputDir /p:WebProjectOutputDir=$webOutputDir `
 					/nologo /p:DebugType=None /p:Platform=AnyCpu /verbosity:quiet }
 			}
 			else
 			{
-				# TODO: implement regular assembly builds
+				$outputDir = "$absoluteOutputDirectory\$($_.Name)"
+				
+				Write-Host "Compiling $($_.Name) to $outputDir"
+
+				exec { MSBuild $($_.Path) /p:Configuration=$configuration /p:OutDir=$outputDir `
+					/nologo /p:DebugType=None /p:Platform=AnyCpu /verbosity:quiet }
 			}
 		}
 }
